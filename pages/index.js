@@ -1,65 +1,63 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+const API_KEY = "d7f67c6c858d4eecbc058cd521485d87"
+export default function Home({articles}) {
+  console.log(articles);
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>News API Blog</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+      <main>
+        <h1>
+          Welcome to My News API Blog
         </h1>
+        </main>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <h3>Top {articles.length} News On Bitcoin From NewsAPI</h3>
+        <div className={styles.articles}>
+            {articles.map((item) => {
+             return (
+              <div className={styles.articleItem}>
+                  <img src={item.urlToImage || "https://static.coindesk.com/wp-content/uploads/2019/10/Bitcoin-chart.jpg"} alt={item.title} />
+                  <div className={styles.articleText}>
+                    <Link href={`posts/${item.title}`}>{item.title.substring(0, 100) + "..."}</Link>
+                    <cite>- {item.author.substring(0, 30)}</cite>
+                  </div>
+              </div>
+             )
+            })}
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
     </div>
   )
+
 }
+
+// author: "Cointelegraph By Mark Binns"
+// content: "Mark my words: Governments and central banks will never care about your wealth and your privacy as much as you do. That reality is exactly why central bank digital currencies are dead in the water al… [+5996 chars]"
+// description: "All that CBDCs are going to do is engage customers in a masquerade that blurs the line between decentralized and centralized finance."
+// publishedAt: "2020-11-15T13:30:00Z"
+// source: {id: null, name: "Cointelegraph"}
+// title: "Central bank digital currencies are dead in the water"
+// url: "https://cointelegraph.com/news/central-bank-digital-currencies-are-dead-in-the-water"
+// urlToImage:
+const date = new Date();
+const month = date.getMonth();
+const day = date.getDate();
+const year = date.getFullYear();
+export async function getStaticProps() {
+  const res = await fetch(`http://newsapi.org/v2/everything?q=bitcoin&from=${year}-${month}-${day}&sortBy=publishedAt&apiKey=${API_KEY}`);
+
+  const {articles} = await res.json();
+
+  return {
+    props: {
+      articles,
+    }
+  }
+}
+
